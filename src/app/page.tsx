@@ -17,6 +17,10 @@ import {
 } from "@/components/certifications";
 import { useState } from "react";
 import { format } from "date-fns";
+import isEmail from "validator/lib/isEmail";
+import isMobilePhone from "validator/lib/isMobilePhone";
+import isEmpty from "validator/lib/isEmpty";
+import isAlphanumeric from "validator/lib/isAlphanumeric";
 
 type FormData = {
   fullname: string;
@@ -30,6 +34,7 @@ type FormData = {
   additionalTechnologies: string;
   workExperiences: WorkExperienceData[];
   certifications: CertificationsData[];
+  photo: File | null;
 };
 
 export default function Home() {
@@ -54,7 +59,85 @@ export default function Home() {
       },
     ],
     certifications: [{ name: "", organisation: "", expiryDate: "" }],
+    photo: null,
   });
+
+  const [errors, setErrors] = useState<{
+    [key in keyof FormData]: string | null;
+  }>({
+    fullname: null,
+    summary: null,
+    birthday: null,
+    email: null,
+    telephone: null,
+    designationCategory: null,
+    country: null,
+    technologies: null,
+    additionalTechnologies: null,
+    workExperiences: null,
+    certifications: null,
+    photo: null,
+  });
+
+  const validateForm = () => {
+    const newErrors: typeof errors = { ...errors };
+
+    if (isEmpty(formData.fullname.trim())) {
+      newErrors.fullname = "Full Name is required";
+    } else if (!isAlphanumeric(formData.fullname.trim())) {
+      newErrors.fullname = "Full Name should be alphanumeric";
+    } else {
+      newErrors.fullname = null;
+    }
+
+    if (isEmpty(formData.summary.trim())) {
+      newErrors.summary = "Summary is required";
+    } else {
+      newErrors.summary = null;
+    }
+
+    if (isEmpty(formData.birthday)) {
+      newErrors.birthday = "Birthday is required";
+    } else {
+      newErrors.birthday = null;
+    }
+
+    if (isEmpty(formData.email.trim())) {
+      newErrors.email = "Email is required";
+    } else if (!isEmail(formData.email.trim())) {
+      newErrors.email = "Invalid email";
+    } else {
+      newErrors.email = null;
+    }
+
+    if (isEmpty(formData.telephone.trim())) {
+      newErrors.telephone = "Telephone is required";
+    } else if (!isMobilePhone(formData.telephone.trim())) {
+      newErrors.telephone = "Invalid telephone";
+    } else {
+      newErrors.telephone = null;
+    }
+
+    if (isEmpty(formData.designationCategory)) {
+      newErrors.designationCategory = "Designation Category is required";
+    } else {
+      newErrors.designationCategory = null;
+    }
+
+    if (isEmpty(formData.country)) {
+      newErrors.country = "Country is required";
+    } else {
+      newErrors.country = null;
+    }
+
+    if (!formData.photo) {
+      newErrors.photo = "Photo is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.values(newErrors).every((error) => !error);
+  };
 
   const handleChange = (
     field: "workExperiences" | "certifications",
@@ -129,6 +212,19 @@ export default function Home() {
 
   const handleFormDataSubmit = () => {
     console.log(formData);
+    const validate = validateForm();
+    if (!validate) {
+      return;
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && /\.(jpg|png)$/i.test(file.name)) {
+      setFormData({ ...formData, photo: file });
+    } else {
+      event.target.value = "";
+    }
   };
 
   return (
@@ -146,7 +242,9 @@ export default function Home() {
             }
             placeholder="Full Name"
           />
+          <span className="text-red-500 text-sm">{errors.fullname}</span>
         </div>
+
         <div className="flex flex-col gap-5">
           <Label htmlFor="summary">Summary</Label>
           <Textarea
@@ -157,6 +255,7 @@ export default function Home() {
             }
             placeholder="Summary"
           />
+          <span className="text-red-500 text-sm">{errors.summary}</span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="birthday">Birthday</Label>
@@ -165,6 +264,7 @@ export default function Home() {
             toYear={new Date().getFullYear()}
             onSelectDate={handleBirthdaySelect}
           />
+          <span className="text-red-500 text-sm">{errors.birthday}</span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="email">Email</Label>
@@ -177,6 +277,7 @@ export default function Home() {
             placeholder="Email"
             type="email"
           />
+          <span className="text-red-500 text-sm">{errors.email}</span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="telephone">Telephone</Label>
@@ -189,14 +290,19 @@ export default function Home() {
             placeholder="Telephone"
             type="tel"
           />
+          <span className="text-red-500 text-sm">{errors.telephone}</span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="designation-category">Designation Category</Label>
           <DesignationSelect onDesignationSelect={handleDesignationSelect} />
+          <span className="text-red-500 text-sm">
+            {errors.designationCategory}
+          </span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="country">Country</Label>
           <CountrySelect onCountrySelect={handleCountrySelect} />
+          <span className="text-red-500 text-sm">{errors.country}</span>
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="technologies">Technologies</Label>
@@ -262,6 +368,17 @@ export default function Home() {
           >
             + Add More
           </Button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="photo">Photo</Label>
+          <Input
+            onChange={handleFileChange}
+            accept=".png, .jpg, .jpeg"
+            id="photo"
+            type="file"
+          />
+          <span className="text-red-500 text-sm">{errors.photo}</span>
         </div>
 
         <div className="flex justify-center mt-5">

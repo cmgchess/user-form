@@ -11,6 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 
 export type WorkExperienceData = {
   employerName: string;
@@ -32,6 +34,21 @@ export function WorkExperience(props: {
     value: string | number
   ) => {
     props.onChange({ ...props.data, [field]: value });
+  };
+
+  const [ongoing, setOngoing] = useState(false);
+
+  const handleOngoing = (checked: boolean) => {
+    setOngoing(checked);
+    if (checked) {
+      props.onChange({ ...props.data, endYear: 0, endMonth: 0 });
+    } else {
+      props.onChange({
+        ...props.data,
+        endYear: new Date().getFullYear(),
+        endMonth: new Date().getMonth() + 1,
+      });
+    }
   };
 
   return (
@@ -86,6 +103,19 @@ export function WorkExperience(props: {
             </div>
             <div className="flex flex-row gap-2 items-center w-1/2">
               <div className="flex flex-row ml-auto">
+                <div className="flex items-center space-x-2 px-4">
+                  <Checkbox
+                    onCheckedChange={handleOngoing}
+                    checked={ongoing}
+                    id="ongoing"
+                  />
+                  <Label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="ongoing"
+                  >
+                    Ongoing
+                  </Label>
+                </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label>End Year</Label>
                   <Input
@@ -94,6 +124,7 @@ export function WorkExperience(props: {
                     type="number"
                     min={1900}
                     max={2100}
+                    disabled={ongoing}
                   />
                 </div>
                 <div className="flex flex-col ml-2 space-y-1.5">
@@ -104,6 +135,7 @@ export function WorkExperience(props: {
                     type="number"
                     max={12}
                     min={1}
+                    disabled={ongoing}
                   />
                 </div>
               </div>
