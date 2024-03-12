@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useCallback, useRef, KeyboardEvent } from "react";
 import { X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,18 +21,21 @@ export function SkillsSelect({
   onSkillSelect: (selectedSkills: Technology[]) => void;
   onSkillUnselect: (removedSkill: Technology) => void;
 }) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [open, setOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<Technology[]>([]);
-  const [inputValue, setInputValue] = React.useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Technology[]>([]);
+  const [inputValue, setInputValue] = useState("");
 
-  const handleUnselect = React.useCallback((technology: Technology) => {
-    setSelected((prev) => prev.filter((s) => s.value !== technology.value));
-    onSkillUnselect(technology);
-  }, [onSkillUnselect]);
+  const handleUnselect = useCallback(
+    (technology: Technology) => {
+      setSelected((prev) => prev.filter((s) => s.value !== technology.value));
+      onSkillUnselect(technology);
+    },
+    [onSkillUnselect]
+  );
 
-  const handleKeyDown = React.useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
       const input = inputRef.current;
       if (input) {
         if (e.key === "Delete" || e.key === "Backspace") {

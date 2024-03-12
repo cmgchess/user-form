@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -22,7 +22,7 @@ export function DatePicker({
   toYear: number;
   onSelectDate: (date: Date) => void;
 }) {
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = useState<Date>();
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (!selectedDate) return;
     setDate(selectedDate);
