@@ -313,6 +313,18 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-5">
           <Label htmlFor="technologies">Additional Technologies</Label>
+          <div className="flex flex-col">
+            <span className="text-gray-400 text-xs">
+              {
+                "Please enter any additional technologies you'd like to include, separated by commas"
+              }
+            </span>
+            <span className="text-gray-400 text-xs">
+              E.g.
+              <strong>{'"React,Node.js,Express,MongoDB"'}</strong>
+            </span>
+          </div>
+
           <Input
             value={formData.additionalTechnologies}
             onChange={(e) =>
