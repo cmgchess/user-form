@@ -1,113 +1,278 @@
-import Image from "next/image";
+"use client";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/datepicker";
+import { DesignationSelect } from "@/components/designation-select";
+import { CountrySelect } from "@/components/country-select";
+import { SkillsSelect, Technology } from "@/components/skills-select";
+import {
+  WorkExperience,
+  WorkExperienceData,
+} from "@/components/work-experience";
+import { Button } from "@/components/ui/button";
+import {
+  Certifications,
+  CertificationsData,
+} from "@/components/certifications";
+import { useState } from "react";
+import { format } from "date-fns";
+
+type FormData = {
+  fullname: string;
+  summary: string;
+  birthday: string;
+  email: string;
+  telephone: string;
+  designationCategory: string;
+  country: string;
+  technologies: string[];
+  additionalTechnologies: string;
+  workExperiences: WorkExperienceData[];
+  certifications: CertificationsData[];
+};
 
 export default function Home() {
+  const [formData, setFormData] = useState<FormData>({
+    fullname: "",
+    summary: "",
+    birthday: "",
+    email: "",
+    telephone: "",
+    designationCategory: "",
+    country: "",
+    technologies: [],
+    additionalTechnologies: "",
+    workExperiences: [
+      {
+        employerName: "",
+        description: "",
+        startYear: new Date().getFullYear(),
+        startMonth: new Date().getMonth() + 1,
+        endYear: new Date().getFullYear(),
+        endMonth: new Date().getMonth() + 1,
+      },
+    ],
+    certifications: [{ name: "", organisation: "", expiryDate: "" }],
+  });
+
+  const handleChange = (
+    field: "workExperiences" | "certifications",
+    id: number,
+    newData: WorkExperienceData | CertificationsData
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: prevData[field].map((entry, index) =>
+        index === id ? newData : entry
+      ),
+    }));
+  };
+
+  const handleBirthdaySelect = (selectedDate: Date) => {
+    const date = format(selectedDate, "yyyy-MM-dd");
+    setFormData({ ...formData, birthday: date });
+  };
+
+  const handleSkillSelect = (selectedSkills: Technology[]) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      technologies: selectedSkills.map((skill) => skill.value),
+    }));
+  };
+
+  const handleSkillUnselect = (removedSkill: Technology) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      technologies: prevData.technologies.filter(
+        (skill) => skill !== removedSkill.value
+      ),
+    }));
+  };
+
+  const handleDesignationSelect = (selectedDesignation: string) => {
+    setFormData({ ...formData, designationCategory: selectedDesignation });
+  };
+
+  const handleCountrySelect = (selectedCountry: string) => {
+    setFormData({ ...formData, country: selectedCountry });
+  };
+
+  const handleAddMore = (field: "workExperiences" | "certifications") => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: [
+        ...prevData[field],
+        field === "workExperiences"
+          ? {
+              employerName: "",
+              description: "",
+              startYear: new Date().getFullYear(),
+              startMonth: new Date().getMonth() + 1,
+              endYear: new Date().getFullYear(),
+              endMonth: new Date().getMonth() + 1,
+            }
+          : { name: "", organisation: "", expiryDate: "" },
+      ],
+    }));
+  };
+
+  const handleRemove = (
+    field: "workExperiences" | "certifications",
+    id: number
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: prevData[field].filter((entry, index) => index !== id),
+    }));
+  };
+
+  const handleFormDataSubmit = () => {
+    console.log(formData);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <div className="flex min-h-screen flex-col items-center">
+      <h1 className="text-4xl font-bold">User Data Form</h1>
+
+      <div className="flex flex-col gap-5 w-full p-10">
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="fullname">Full Name</Label>
+          <Input
+            id="fullname"
+            value={formData.fullname}
+            onChange={(e) =>
+              setFormData({ ...formData, fullname: e.target.value })
+            }
+            placeholder="Full Name"
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="summary">Summary</Label>
+          <Textarea
+            id="summary"
+            value={formData.summary}
+            onChange={(e) =>
+              setFormData({ ...formData, summary: e.target.value })
+            }
+            placeholder="Summary"
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="birthday">Birthday</Label>
+          <DatePicker
+            fromYear={new Date().getFullYear() - 100}
+            toYear={new Date().getFullYear()}
+            onSelectDate={handleBirthdaySelect}
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+            id="email"
+            placeholder="Email"
+            type="email"
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="telephone">Telephone</Label>
+          <Input
+            value={formData.telephone}
+            onChange={(e) =>
+              setFormData({ ...formData, telephone: e.target.value })
+            }
+            id="telephone"
+            placeholder="Telephone"
+            type="tel"
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="designation-category">Designation Category</Label>
+          <DesignationSelect onDesignationSelect={handleDesignationSelect} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="country">Country</Label>
+          <CountrySelect onCountrySelect={handleCountrySelect} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="technologies">Technologies</Label>
+          <SkillsSelect
+            onSkillSelect={handleSkillSelect}
+            onSkillUnselect={handleSkillUnselect}
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="technologies">Additional Technologies</Label>
+          <Input
+            value={formData.additionalTechnologies}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                additionalTechnologies: e.target.value,
+              })
+            }
+            id="technologies"
+            placeholder="Additional Technologies"
+          />
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="work-experiences">Work Experiences</Label>
+          {formData.workExperiences.map((entry, idx) => (
+            <WorkExperience
+              key={idx}
+              data={entry}
+              position={idx}
+              onChange={(newData) =>
+                handleChange("workExperiences", idx, newData)
+              }
+              onRemove={() => handleRemove("workExperiences", idx)}
             />
-          </a>
+          ))}
+          <Button
+            className="w-24 bg-green-500 hover:bg-green-700 text-white"
+            size="sm"
+            onClick={() => handleAddMore("workExperiences")}
+          >
+            + Add More
+          </Button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <Label htmlFor="certifications">Certifications</Label>
+          {formData.certifications.map((entry, idx) => (
+            <Certifications
+              key={idx}
+              data={entry}
+              position={idx}
+              onChange={(newData) =>
+                handleChange("certifications", idx, newData)
+              }
+              onRemove={() => handleRemove("certifications", idx)}
+            />
+          ))}
+          <Button
+            className="w-24 bg-green-500 hover:bg-green-700 text-white"
+            size="sm"
+            onClick={() => handleAddMore("certifications")}
+          >
+            + Add More
+          </Button>
+        </div>
+
+        <div className="flex justify-center mt-5">
+          <Button
+            onClick={handleFormDataSubmit}
+            className="w-32 bg-blue-500 hover:bg-blue-700 text-white"
+          >
+            Submit
+          </Button>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
