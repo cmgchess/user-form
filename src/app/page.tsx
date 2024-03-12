@@ -340,7 +340,7 @@ export default function Home() {
             />
           ))}
           <Button
-            className="w-24 bg-green-500 hover:bg-green-700 text-white"
+            className="w-32 bg-green-500 hover:bg-green-700 text-white"
             size="sm"
             onClick={() => handleAddMore("workExperiences")}
           >
@@ -362,7 +362,7 @@ export default function Home() {
             />
           ))}
           <Button
-            className="w-24 bg-green-500 hover:bg-green-700 text-white"
+            className="w-32 bg-green-500 hover:bg-green-700 text-white"
             size="sm"
             onClick={() => handleAddMore("certifications")}
           >
